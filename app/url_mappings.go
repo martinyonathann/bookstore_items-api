@@ -1,7 +1,7 @@
 package app
 
-import "github.com/bookstore_items-api/controllers"
+import "github.com/martinyonathann/bookstore_items-api/controllers"
 
 func mapUrls() {
-	router.GET("/ping", controllers.Ping)
+	router.GET("/items", controllers.GetAllBook)
 }
