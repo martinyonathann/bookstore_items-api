@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/martinyonathann/github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -9,6 +9,7 @@ var (
 )
 
 func StartApplication() {
+	gin.SetMode(gin.DebugMode)
 	mapUrls()
 	router.Run(":8081")
 }
