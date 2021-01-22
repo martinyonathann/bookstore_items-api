@@ -1,17 +1,16 @@
 package items
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/martinyonathann/bookstore_items-api/datasource/mysql/users_db"
 	"github.com/martinyonathann/bookstore_items-api/utils/errors"
+	"github.com/martinyonathann/bookstore_items-api/utils/helpers"
 )
 
 const (
 	queryGetAllBook = "SELECT * FROM items where flag_active = ? ;"
 	queryGetBook    = "SELECT * FROM items where id = ? ;"
-	queryValidate   = "SELECT COUNT(*) FROM items where book_name = ? ;"
 	queryCreateBook = "INSERT INTO items (book_name, detail_book, price, writer, year_created, flag_active) VALUES (?, ?, ?, ?, ?, ?)"
 )
 
@@ -74,27 +73,10 @@ func (item *Item) GetAllBooks(flagActive string) ([]Item, *errors.RestErr) {
 	return result, nil
 }
 
-func validate(BookName string) (int, *errors.RestErr) {
-	stmt, err := users_db.Client.Prepare(queryValidate)
-	log.Println("sudah masuk validate " + BookName)
-	if err != nil {
-		return 0, errors.NewInternalServerError("error when prepare query Validate")
-	}
-	defer stmt.Close()
-
-	rows := stmt.QueryRow(BookName)
-
-	var count int
-	if err := rows.Scan(&count); err != nil {
-		return 0, errors.NewInternalServerError("error when count rows")
-	}
-	return count, nil
-}
-
 func (item *Item) CreateBook() *errors.RestErr {
-	count, Counterr := validate(item.BookName)
-	if Counterr != nil {
-		return errors.NewInternalServerError("error when validate")
+	count, CountErr := helpers.Validate(item.BookName, item.YearCreated)
+	if CountErr != nil {
+		return errors.NewBadRequestError(CountErr.Error)
 	}
 	if count > 0 {
 		return errors.NewInternalServerError("book already exist")
@@ -102,16 +84,16 @@ func (item *Item) CreateBook() *errors.RestErr {
 
 	stmt, err := users_db.Client.Prepare(queryCreateBook)
 	if err != nil {
-		return errors.NewInternalServerError("error when prepare query createbook")
+		return errors.NewInternalServerError(err.Error())
 	}
 	defer stmt.Close()
 	insertResult, SaveErr := stmt.Exec(item.BookName, item.Detail, item.Price, item.Writer, item.YearCreated, item.FlagActive)
 	if SaveErr != nil {
-		return errors.NewInternalServerError("error when execute query createbook")
+		return errors.NewInternalServerError(SaveErr.Error())
 	}
-	bookID, err := insertResult.LastInsertId()
-	if err != nil {
-		return errors.NewInternalServerError("error when get bookID for sequence")
+	bookID, BookErr := insertResult.LastInsertId()
+	if BookErr != nil {
+		return errors.NewInternalServerError(BookErr.Error())
 	}
 	item.ID = bookID
 	return nil

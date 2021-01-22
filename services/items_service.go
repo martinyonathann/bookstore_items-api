@@ -13,7 +13,7 @@ type itemsService struct {
 }
 
 type itemsServiceInterface interface {
-	GetItemById(int64) (*items.Item, *errors.RestErr)
+	GetItemByID(int64) (*items.Item, *errors.RestErr)
 	GetAll(string) (items.Items, *errors.RestErr)
 	CreateBook(items.Item) (*items.Item, *errors.RestErr)
 }
@@ -23,7 +23,7 @@ func (item *itemsService) GetAll(flagActive string) (items.Items, *errors.RestEr
 	return dao.GetAllBooks(flagActive)
 }
 
-func (item *itemsService) GetItemById(itemsID int64) (*items.Item, *errors.RestErr) {
+func (item *itemsService) GetItemByID(itemsID int64) (*items.Item, *errors.RestErr) {
 	result := &items.Item{ID: itemsID}
 	if err := result.Get(); err != nil {
 		return nil, err

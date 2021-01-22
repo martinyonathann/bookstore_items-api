@@ -35,7 +35,7 @@ func GetBookById(c *gin.Context) {
 		c.JSON(idErr.Status, idErr)
 		return
 	}
-	result, getErr := services.ItemsService.GetItemById(bookID)
+	result, getErr := services.ItemsService.GetItemByID(bookID)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 	}
