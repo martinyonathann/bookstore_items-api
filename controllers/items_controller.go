@@ -5,8 +5,10 @@ import (
 	"strconv"
 
 	"github.com/martinyonathann/bookstore_items-api/domain/items"
+	"github.com/martinyonathann/bookstore_items-api/logger"
 	"github.com/martinyonathann/bookstore_items-api/services"
 	"github.com/martinyonathann/bookstore_items-api/utils/errors"
+	"go.uber.org/zap"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +22,7 @@ func getBookId(userIdParam string) (int64, *errors.RestErr) {
 }
 func GetAllBook(c *gin.Context) {
 	flagActive := c.Query("flagActive")
+	logger.RequestLog("ReqGetAllBook", zap.Any("flagActive", flagActive))
 
 	items, err := services.ItemsService.GetAll(flagActive)
 	if err != nil {
@@ -27,6 +30,7 @@ func GetAllBook(c *gin.Context) {
 		return
 	}
 
+	logger.ResponseLog("RespGetAllBook", zap.Any("DataResponse", items))
 	c.JSON(http.StatusOK, items)
 }
 func GetBookById(c *gin.Context) {
